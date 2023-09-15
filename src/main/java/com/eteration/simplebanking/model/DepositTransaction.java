@@ -12,8 +12,10 @@ import java.util.Date;
 // This class is a place holder you can change the complete implementation
 @Entity
 @Table(name = "deposit_transaction")
-@Getter @Setter @NoArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class DepositTransaction extends Transaction {
+
+    private Double amount;
 
     @Override
     public void transaction(Double amount) {

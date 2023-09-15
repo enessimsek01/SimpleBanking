@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import com.eteration.simplebanking.controller.AccountController;
 import com.eteration.simplebanking.controller.TransactionStatus;
 import com.eteration.simplebanking.dto.AccountDto;
+import com.eteration.simplebanking.dto.AmountDto;
 import com.eteration.simplebanking.model.Account;
 import com.eteration.simplebanking.model.DepositTransaction;
 import com.eteration.simplebanking.util.InsufficientBalanceException;
@@ -21,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -28,7 +30,7 @@ import org.springframework.test.context.ContextConfiguration;
 @ContextConfiguration
 @AutoConfigureMockMvc
 class ControllerTests  {
-    /*
+
     @Spy
     @InjectMocks
     private AccountController controller;
@@ -43,10 +45,13 @@ class ControllerTests  {
         
         Account account = new Account("Kerem Karaca", "17892");
 
+        AmountDto amountDto = new AmountDto();
+        amountDto.setAmount(1000.0);
+
         doReturn(account).when(service).findAccount( "17892");
-        ResponseEntity<TransactionStatus> result = controller.credit( "17892", new DepositTransaction(1000.0));
+        ResponseEntity<Object> result = controller.credit("17892", amountDto);
         verify(service, times(1)).findAccount("17892");
-        assertEquals("OK", result.getBody().getStatus());
+        assertEquals("OK", result.getBody());
     }
 
     @Test
@@ -55,12 +60,16 @@ class ControllerTests  {
         
         Account account = new Account("Kerem Karaca", "17892");
 
+        AmountDto amountDto = new AmountDto();
+        amountDto.setAmount(1000.0);
+
         doReturn(account).when(service).findAccount( "17892");
-        ResponseEntity<TransactionStatus> result = controller.credit( "17892", new DepositTransaction(1000.0));
-        ResponseEntity<TransactionStatus> result2 = controller.debit( "17892", new WithdrawalTransaction(50.0));
+        ResponseEntity<Object> creditResult = controller.credit("17892", amountDto);
+        amountDto.setAmount(50.0);
+        ResponseEntity<Object> debitResult = controller.debit("17892", amountDto);
         verify(service, times(2)).findAccount("17892");
-        assertEquals("OK", result.getBody().getStatus());
-        assertEquals("OK", result2.getBody().getStatus());
+        assertEquals(HttpStatus.OK, creditResult.getStatusCode());
+        assertEquals(HttpStatus.OK, debitResult.getStatusCode());
         assertEquals(950.0, account.getBalance(),0.001);
     }
 
@@ -70,13 +79,19 @@ class ControllerTests  {
         Assertions.assertThrows( InsufficientBalanceException.class, () -> {
             Account account = new Account("Kerem Karaca", "17892");
 
+            AmountDto amountDto = new AmountDto();
+            amountDto.setAmount(1000.0);
+
+
             doReturn(account).when(service).findAccount( "17892");
-            ResponseEntity<TransactionStatus> result = controller.credit( "17892", new DepositTransaction(1000.0));
-            assertEquals("OK", result.getBody().getStatus());
+            ResponseEntity<Object> creditResult = controller.credit("17892", amountDto);
+            assertEquals(HttpStatus.OK, creditResult.getStatusCode());
             assertEquals(1000.0, account.getBalance(),0.001);
             verify(service, times(1)).findAccount("17892");
 
-            ResponseEntity<TransactionStatus> result2 = controller.debit( "17892", new WithdrawalTransaction(5000.0));
+            amountDto.setAmount(5000.0);
+
+            ResponseEntity<Object> debit = controller.debit("17892", amountDto);
         });
     }
 
@@ -92,6 +107,6 @@ class ControllerTests  {
         assertEquals(account, result.getBody());
     }
 
-     */
+
 
 }

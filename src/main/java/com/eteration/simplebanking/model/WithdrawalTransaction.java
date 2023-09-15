@@ -13,9 +13,10 @@ import java.util.Date;
 
 @Entity
 @Table(name = "withdrawal_transaction")
-@Getter @Setter @NoArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class WithdrawalTransaction extends Transaction {
 
+    private Double amount;
 
     @Override
     public void transaction(Double amount) {
